@@ -130,7 +130,7 @@ plot_comparison_summary(resultados_tsmule, resultados_cf)
 |:---:|:---:|:---:|
 | ts-MULE | n_runs=300, n_samples=100 | ~9.8 min |
 | CONFETTI | population_size=100, max_generations=200 | between 9.0 and 45 min* |
-* Computation time is strongly dependent on the complexity of the instance being analysed
+*Computation time is strongly dependent on the complexity of the instance being analysed
 
 ---
 
