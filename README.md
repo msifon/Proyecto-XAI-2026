@@ -73,8 +73,8 @@ conda activate xai_tsunami
 
 | Package | Download | Description |
 |:---|:---:|:---|
-| ts-MULE | [Download]([https://drive.google.com/your-link-here](https://drive.google.com/drive/folders/1kvca5dyYCNOYtVMljw_yGAYRRfMGBfze?usp=drive_link) | Modified version with bug fixes |
-| CONFETTI | [Download]([https://drive.google.com/your-link-here](https://drive.google.com/drive/folders/1PipK4KWZqMZ6Ua5apq4kpOO7e0c_0M9j?usp=drive_link) | Original package |
+| ts-MULE | [Download]([https://drive.google.com/drive/folders/1kvca5dyYCNOYtVMljw_yGAYRRfMGBfze?usp=drive_link]) | Modified version with bug fixes |
+| CONFETTI | [Download]([https://drive.google.com/drive/folders/1PipK4KWZqMZ6Ua5apq4kpOO7e0c_0M9j?usp=drive_link]) | Original package |
 
    Once downloaded, install each package from its local directory:
 ```bash
