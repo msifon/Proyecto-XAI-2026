@@ -3,7 +3,8 @@
 Explainability analysis of a deep learning model for tsunami classification using 
 time series data from buoy sensors. This repository implements and compares two 
 XAI (Explainable Artificial Intelligence) methods: **ts-MULE** (Schlegel et al. 2021)
-and **CONFETTI** (Cetina et al. 2026).
+and **CONFETTI** (Cetina et al. 2026), to explain predictions of a modified version of the
+model proposed by Núñez et al. (2022).
 
 ---
 
