@@ -44,11 +44,10 @@ using a genetic algorithm (Cetina et al. 2026).
 │   ├── confetti_convergence.py # CONFETTI convergence analysis
 │   └── comparison_plots.py     # Comparative plotting functions
 │
-├── notebooks/                  # Jupyter notebooks
-│   ├── 0X_name.ipynb           # Introductory files, data and model setup
-│   ├── 1X_name.ipynb           # CONFETTI implementation (Cetina et al. 2026)
-│   ├── 2X_name.ipynb           # ts-MULE implementation (Schlegel et al. 2021)
-│   └── 3X_name.ipynb           # Joint analysis using both methods
+├── 0X_name.ipynb               # Introductory files, data and model setup
+├── 1X_name.ipynb               # CONFETTI implementation (Cetina et al. 2026)
+├── 2X_name.ipynb               # ts-MULE implementation (Schlegel et al. 2021)
+├── 3X_name.ipynb               # Joint analysis using both methods
 │
 ├── DATA/                       # Dataset (see Data section for download)
 ├── MODELS/                     # Trained models (see Installation for download)
@@ -56,7 +55,6 @@ using a genetic algorithm (Cetina et al. 2026).
 ├── .gitignore
 └── README.md
 ```
-
 
 ---
 
