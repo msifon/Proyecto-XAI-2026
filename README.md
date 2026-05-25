@@ -82,11 +82,12 @@ conda activate xai_tsunami
 
    Once downloaded, follow the installation instructions for each package:
 
-   **ts-MULE** — No installation required. Download the folder and place it 
-   in the root of the repository. Then import the modules using the relative path:
+**ts-MULE** — No installation required. Download the folder and place it 
+   in `METHODS/ts-mule/` at the root of the repository. Then add it to the 
+   Python path at the beginning of each notebook:
 ```python
    import sys
-   sys.path.append('path/to/ts-mule')
+   sys.path.insert(0, 'METHODS/ts-mule')
 ```
 
    **CONFETTI** — Install from its local directory:
