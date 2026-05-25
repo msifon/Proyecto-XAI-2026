@@ -22,12 +22,12 @@ for the model's decisions.
 ### ts-MULE
 Local perturbation-based explainability method adapted for time series. Generates 
 relevance scores for each timestep and feature by fitting a local linear model 
-(Lasso regression) over perturbed samples.
+(Lasso regression) over perturbed samples (Schlegel et al. 2021).
 
 ### CONFETTI
 Counterfactual explanation method for time series. Generates counterfactual instances 
 — minimal modifications to the input that would change the model's prediction — 
-using a genetic algorithm.
+using a genetic algorithm (Cetina et al. 2026).
 
 ---
 
