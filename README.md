@@ -152,7 +152,7 @@ generated from numerical simulations, recorded by a network of 6 virtual buoys.
 
 | Dataset | Download | Description |
 |:---|:---:|:---|
-| Data set | [Download]([https://drive.google.com/your-link-here](https://drive.google.com/drive/folders/1D_eD67j7sEbZy7gyZfP9cTYWzXqrEuoh?usp=drive_link)) | X_train, y_train, X_val, y_val, X_test, y_test |
+| Data set | [Download](https://drive.google.com/drive/folders/1D_eD67j7sEbZy7gyZfP9cTYWzXqrEuoh?usp=drive_link) | X_train, y_train, X_val, y_val, X_test, y_test |
 
 
 Once downloaded, place the files in a `DATA/` folder at the root of the repository:
