@@ -200,11 +200,6 @@ This project is for academic purposes only.
 
 ## 📚 References
 
-- Schlegel, U., Lam, D. V., Keim, D. A., & Seebacher, D. (2021). TS-MULE: Local 
-Interpretable Model-Agnostic Explanations for Time Series Forecast Models. *Joint 
-European Conference on Machine Learning and Knowledge Discovery in Databases*, 5–14. 
-[https://arxiv.org/abs/2109.08438](https://arxiv.org/abs/2109.08438)
-
 - Cetina, A. G. P., Benguessoum, K., Lourenço, R., & Kubler, S. (2026). Counterfactual 
 Explainable AI (XAI) Method for Deep Learning-Based Multivariate Time Series 
 Classification. *Proceedings of the AAAI Conference on Artificial Intelligence*, 
@@ -215,3 +210,10 @@ Classification. *Proceedings of the AAAI Conference on Artificial Intelligence*,
 Discriminating the occurrence of inundation in tsunami early warning with 
 one-dimensional convolutional neural networks. *Scientific Reports*, 12(1). 
 [https://doi.org/10.1038/s41598-022-13788-9](https://doi.org/10.1038/s41598-022-13788-9)
+
+- Schlegel, U., Lam, D. V., Keim, D. A., & Seebacher, D. (2021). TS-MULE: Local 
+Interpretable Model-Agnostic Explanations for Time Series Forecast Models. *Joint 
+European Conference on Machine Learning and Knowledge Discovery in Databases*, 5–14. 
+[https://arxiv.org/abs/2109.08438](https://arxiv.org/abs/2109.08438)
+
+
