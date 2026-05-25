@@ -184,10 +184,10 @@ See `requirements.txt` for full dependency list.
 
 ## 👤 Authors
 
-- **Matías Sifón** — PhD Student
+- **Matías Sifón, MSc** — PhD Student
 - **Tomás Mercado** — MSc Student
 - **Ignacio Muñoz** — B.Sc. Student
-- **Raaquel Pezoa** — Supervisor
+- **Raquel Pezoa, PhD** — Supervisor
 
 **Institution:** Universidad Técnica Federico Santa María  
 **Course:** INF473 - Introducción a XAI
