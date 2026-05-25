@@ -69,11 +69,28 @@ conda create -n xai_tsunami python=3.12
 conda activate xai_tsunami
 ```
 
-3. Install dependencies:
+3. Download the required packages (modified versions with bug fixes):
+
+| Package | Download | Description |
+|:---|:---:|:---|
+| ts-MULE | [Download]([https://drive.google.com/your-link-here](https://drive.google.com/drive/folders/1kvca5dyYCNOYtVMljw_yGAYRRfMGBfze?usp=drive_link)) | Modified version with bug fixes |
+| CONFETTI | [Download]([https://drive.google.com/your-link-here](https://drive.google.com/drive/folders/1PipK4KWZqMZ6Ua5apq4kpOO7e0c_0M9j?usp=drive_link)) | Original package |
+
+   Once downloaded, install each package from its local directory:
+```bash
+# Install ts-MULE
+cd path/to/ts-mule
+pip install -e .
+
+# Install CONFETTI
+cd path/to/confetti
+pip install -e .
+```
+
+4. Install remaining dependencies:
 ```bash
 pip install -r requirements.txt
 ```
-
 ---
 
 ## 🚀 Usage
@@ -127,6 +144,26 @@ original ts-MULE repository:
 4. `mask_percentile()` used strict `>` → changed to `>=` with `method='lower'`
 
 ---
+## 📁 Data
+
+The dataset used in this project consists of synthetic tsunami time series 
+generated from numerical simulations, recorded by a network of 6 virtual buoys.
+
+| Dataset | Download | Description |
+|:---|:---:|:---|
+| Data set | [Download]([https://drive.google.com/your-link-here](https://drive.google.com/drive/folders/1D_eD67j7sEbZy7gyZfP9cTYWzXqrEuoh?usp=drive_link)) | X_train, y_train, X_val, y_val, X_test, y_test |
+
+
+Once downloaded, place the files in a `DATA/` folder at the root of the repository:
+```
+├── DATA/
+│   ├── X_train_new.pickle
+│   ├── y_train_new.pickle
+│   ├── X_val_new.pickle
+│   ├── y_val_new.pickle
+│   ├── X_test_new.pickle
+│   └── y_test_new.pickle
+```
 
 ## 📋 Requirements
 
