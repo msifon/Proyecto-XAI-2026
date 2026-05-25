@@ -32,8 +32,10 @@ using a genetic algorithm (Cetina et al. 2026).
 ---
 
 ## 🗂️ Repository Structure
+
+```
 ├── xai_utils/                  # Main XAI utility module
-│   ├── init.py
+│   ├── __init__.py
 │   ├── tsmule_analysis.py      # ts-MULE analysis function
 │   ├── tsmule_plots.py         # ts-MULE plotting functions
 │   ├── tsmule_convergence.py   # ts-MULE convergence analysis
@@ -43,15 +45,17 @@ using a genetic algorithm (Cetina et al. 2026).
 │   └── comparison_plots.py     # Comparative plotting functions
 │
 ├── notebooks/                  # Jupyter notebooks
-│   ├── 01_tsmule_analysis.ipynb
-│   ├── 02_confetti_analysis.ipynb
-│   ├── 03_convergence_tsmule.ipynb
-│   ├── 04_convergence_confetti.ipynb
-│   └── 05_comparison.ipynb
+│   ├── 0X_name.ipynb           # Introductory files, data and model setup
+│   ├── 1X_name.ipynb           # CONFETTI implementation (Cetina et al. 2026)
+│   ├── 2X_name.ipynb           # ts-MULE implementation (Schlegel et al. 2021)
+│   └── 3X_name.ipynb           # Joint analysis using both methods
 │
+├── DATA/                       # Dataset (see Data section for download)
+├── MODELS/                     # Trained models (see Installation for download)
 ├── requirements.txt            # Project dependencies
 ├── .gitignore
 └── README.md
+```
 
 
 ---
