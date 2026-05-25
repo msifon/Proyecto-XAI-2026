@@ -124,18 +124,19 @@ plot_comparison_summary(resultados_tsmule, resultados_cf)
 
 ---
 
-## 📊 Key Results
+## 📊 Suggested configuration
 
 | Method | Optimal Parameters | Computation Time |
 |:---:|:---:|:---:|
 | ts-MULE | n_runs=300, n_samples=100 | ~9.8 min |
-| CONFETTI | population_size=100, max_generations=200 | ~9.0 min |
+| CONFETTI | population_size=100, max_generations=200 | between 9.0 and 45 min* |
+* Computation time is strongly dependent on the complexity of the instance being analysed
 
 ---
 
 ## 🐛 Bug Fixes in ts-MULE
 
-During implementation, the following bugs were identified and corrected in the 
+During implementation, the following bugs were identified and corrected from the 
 original ts-MULE repository:
 
 1. `segmentation_method='slope-max'` → incorrect name, corrected to `'slopes-sorted'`
