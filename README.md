@@ -80,15 +80,19 @@ conda activate xai_tsunami
 | ts-MULE | [Download](https://drive.google.com/drive/folders/1kvca5dyYCNOYtVMljw_yGAYRRfMGBfze?usp=drive_link) | Modified version with bug fixes |
 | CONFETTI | [Download](https://drive.google.com/drive/folders/1PipK4KWZqMZ6Ua5apq4kpOO7e0c_0M9j?usp=drive_link) | Original package |
 
-   Once downloaded, install each package from its local directory:
-```bash
-# Install ts-MULE
-cd path/to/ts-mule
-pip install -e .
+   Once downloaded, follow the installation instructions for each package:
 
-# Install CONFETTI
-cd path/to/confetti
-pip install -e .
+   **ts-MULE** — No installation required. Download the folder and place it 
+   in the root of the repository. Then import the modules using the relative path:
+```python
+   import sys
+   sys.path.append('path/to/ts-mule')
+```
+
+   **CONFETTI** — Install from its local directory:
+```bash
+   cd path/to/confetti
+   pip install confetti-ts
 ```
 
 4. Install remaining dependencies:
