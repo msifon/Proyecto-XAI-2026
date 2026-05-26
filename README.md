@@ -146,13 +146,15 @@ plot_comparison_summary(resultados_tsmule, resultados_cf)
 
 ## 🐛 Bug Fixes in ts-MULE
 
-During implementation, the following bugs were identified and corrected from the 
-original ts-MULE repository:
+The following bugs were identified and corrected in the original ts-MULE repository:
 
-1. `segmentation_method='slope-max'` → incorrect name, corrected to `'slopes-sorted'`
-2. `z_hat` without flatten in `_explain()` → shape `(n,1)` instead of `(n,)` caused null coefficients
-3. `Lasso(alpha=0.01)` too aggressive → reduced to `alpha=0.0001`
-4. `mask_percentile()` used strict `>` → changed to `>=` with `method='lower'`
+| # | File | Function | Bug | Fix |
+|:---:|:---|:---|:---|:---|
+| 1 | `tsmule/xai/lime.py` | `LimeBase.explain()` | `segmentation_method='slope-max'` — incorrect method name | Changed to `'slopes-sorted'` |
+| 2 | `tsmule/xai/lime.py` | `LimeBase._explain()` | `z_hat` shape `(n,1)` instead of `(n,)` caused null Lasso coefficients | Added `.flatten()` to `z_hat` |
+| 3 | `tsmule/xai/lime.py` | `LimeTS.__init__()` | `Lasso(alpha=0.01)` too aggressive — produced almost all zero coefficients | Reduced to `alpha=0.0001` |
+| 4 | `tsmule/xai/evaluation.py` | `PerturbationBase.mask_percentile()` | Strict `>` operator excluded values exactly equal to percentile, producing all-ones masks | Changed to `>=` with `method='lower'` |
+| 5 | `tsmule/xai/evaluation.py` | `PerturbationBase._randomize()` | `n_ons` could become negative when `n_offs * (1 + delta) > n_steps` | Added `np.clip(n_offs, 0, n_steps)` |
 
 ---
 ## 📁 Data
