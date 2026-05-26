@@ -146,7 +146,9 @@ plot_comparison_summary(resultados_tsmule, resultados_cf)
 
 ## 🐛 Bug Fixes in ts-MULE
 
-The following bugs were identified and corrected in the original ts-MULE repository:
+The following bugs were identified and corrected from the original ts-MULE repository. 
+The modified version available for download in this repository already incorporates 
+all these fixes.
 
 | # | File | Function | Bug | Fix |
 |:---:|:---|:---|:---|:---|
