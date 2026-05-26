@@ -208,6 +208,15 @@ See `requirements.txt` for full dependency list.
 
 This project is for academic purposes only.
 
+## 🔗 Reference Repositories
+
+The methods implemented in this project are based on the following repositories:
+
+| Method | GitHub |
+|:---|:---|
+| TS-MULE | [Repository](https://github.com/visual-xai-for-time-series/ts-mule) |
+| CONFETTI | [Repository](https://github.com/serval-uni-lu/confetti) |
+
 ## 📚 References
 
 - Cetina, A. G. P., Benguessoum, K., Lourenço, R., & Kubler, S. (2026). Counterfactual 
