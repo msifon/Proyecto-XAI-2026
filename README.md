@@ -63,7 +63,7 @@ using a genetic algorithm (Cetina et al. 2026).
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/username/xai-tsunami-ts.git
+git clone https://github.com/visual-xai-for-time-series/ts-mule
 cd xai-tsunami-ts
 ```
 
@@ -73,16 +73,16 @@ conda create -n xai_tsunami python=3.12
 conda activate xai_tsunami
 ```
 
-3. Download the required packages (modified versions with bug fixes):
+3. Download and install the required packages:
 
 | Package | Download | Description |
 |:---|:---:|:---|
-| ts-MULE | [Download](https://drive.google.com/drive/folders/1kvca5dyYCNOYtVMljw_yGAYRRfMGBfze?usp=drive_link) | Modified version with bug fixes |
-| CONFETTI | [Download](https://drive.google.com/drive/folders/1PipK4KWZqMZ6Ua5apq4kpOO7e0c_0M9j?usp=drive_link) | Original package |
+| ts-MULE | [Download](https://drive.google.com/drive/folders/1kvca5dyYCNOYtVMljw_yGAYRRfMGBfze?usp=drive_link) | Modified version with bug fixes (required) |
+| CONFETTI | [Download](https://drive.google.com/drive/folders/1PipK4KWZqMZ6Ua5apq4kpOO7e0c_0M9J?usp=drive_link) | Optional — available on PyPI |
 
    Once downloaded, follow the installation instructions for each package:
 
-**ts-MULE** — No installation required. Download the folder and place it 
+   **ts-MULE** — No installation required. Download the folder and place it 
    in `METHODS/ts-mule/` at the root of the repository. Then add it to the 
    Python path at the beginning of each notebook:
 ```python
@@ -90,7 +90,12 @@ conda activate xai_tsunami
    sys.path.insert(0, 'METHODS/ts-mule')
 ```
 
-   **CONFETTI** — Install from its local directory:
+   **CONFETTI** — Available on PyPI. Install directly with:
+```bash
+   pip install confetti-ts
+```
+   Alternatively, download the package from the link above and install from 
+   its local directory:
 ```bash
    cd path/to/confetti
    pip install confetti-ts
