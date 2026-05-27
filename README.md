@@ -52,6 +52,14 @@ using a genetic algorithm (Cetina et al. 2026).
 │
 ├── DATA/                       # Dataset (see Data section for download)
 ├── MODELS/                     # Trained models (see Installation for download)
+├── FIGS/                       # Empty folder for results (codes fail if doesn't exist)
+├── RESULTADOS_COMPARACION/     # Empty folder for results (codes fail if doesn't exist)
+├── RESULTADOS_CONFETTI/        # Empty folder for results (codes fail if doesn't exist)
+├── RESULTADOS_TSMULE/          # Empty folder for results (codes fail if doesn't exist)
+├── METHODS/                    # Place TS-MULE and CONFETTI repositories here
+├── CONVERGENCIA_CONFETTI/      # Empty folder for results (codes fail if doesn't exist)
+├── CONVERGENCIA_TSMULE/        # Empty folder for results (codes fail if doesn't exist)
+├── INFORMES/                   # Project reports (PDF format)
 ├── requirements.txt            # Project dependencies
 ├── .gitignore
 └── README.md
