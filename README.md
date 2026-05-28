@@ -71,8 +71,8 @@ using a genetic algorithm (Cetina et al. 2026).
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/visual-xai-for-time-series/ts-mule
-cd xai-tsunami-ts
+git clone https://github.com/msifon/Proyecto-XAI-2026.git
+cd Proyecto-XAI-2026
 ```
 
 2. Create and activate a conda environment:
