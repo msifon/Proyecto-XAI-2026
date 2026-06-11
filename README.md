@@ -10,11 +10,27 @@ model proposed by Núñez et al. (2022).
 
 ## 📌 Overview
 
-This project applies XAI techniques to interpret the predictions of a 1D-CNN model 
-trained with transfer learning from a model proposed by Núñez et al (2022), 
-to classify tsunami events from multivariate time series recorded by a network 
-of 6 buoys. The analysis identifies which temporal regions and sensors are most relevant 
-for the model's decisions.
+This repository contains the development of the course project for **Introduction 
+to Explainable Artificial Intelligence (INF473)**, 2026, at Universidad Técnica 
+Federico Santa María.
+
+The project applies XAI techniques to interpret the predictions of a 1D-CNN model 
+trained to classify tsunami inundation events from multivariate time series recorded 
+by a network of 6 virtual buoys located off the coast of Coquimbo, Chile. As a 
+tsunami propagates from deep ocean toward the coast, the buoys record the wave signal 
+before it reaches shore. The model uses these 6 simultaneous time series as input 
+and predicts whether the event will cause inundation at a forecast point near 
+Coquimbo (see figure below).
+
+<p align="center">
+  <img src="FIGS/mapa_boyas.png" width="500" alt="Buoy network and forecast point off the coast of Coquimbo, Chile"/>
+</p>
+
+Two XAI methods are implemented and compared: **ts-MULE** (Schlegel et al. 2021) 
+and **CONFETTI** (Cetina et al. 2026), identifying which temporal regions and 
+buoys are most relevant for the model's decisions. The ultimate goal is to use 
+these explainability results to determine the optimal placement of virtual DART 
+buoys for tsunami early warning.
 
 ---
 
