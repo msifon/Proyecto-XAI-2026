@@ -1,62 +1,45 @@
 # XAI for Tsunami Time Series
 
-Explainability analysis of a deep learning model for tsunami classification using 
-time series data from buoy sensors. This repository implements and compares two 
-XAI (Explainable Artificial Intelligence) methods: **ts-MULE** (Schlegel et al. 2021)
-and **CONFETTI** (Cetina et al. 2026), to explain predictions of a modified version of the
-model proposed by Núñez et al. (2022). As an additional contribution, explicit 
-fidelity metrics for counterfactual quality evaluation are implemented, including 
-proximity and spectral plausibility.
+Explainability analysis of a deep learning model for tsunami classification using time series data from buoy sensors. This repository implements and compares two XAI (Explainable Artificial Intelligence) methods: **ts-MULE** (Schlegel et al. 2021) and **CONFETTI** (Cetina et al. 2026), to explain predictions of a modified version of the model proposed by Núñez et al. (2022). As an additional contribution, explicit fidelity metrics for both methods quality evaluation are implemented.
 
 ---
 
 ## 📌 Overview
 
-This repository contains the development of the course project for **Introduction 
-to Explainable Artificial Intelligence (INF473)**, 2026, at Universidad Técnica 
-Federico Santa María.
+This repository contains the development of the course project for **Introduction to Explainable Artificial Intelligence (INF473)**, 2026, at Universidad Técnica Federico Santa María.
 
-The project applies XAI techniques to interpret the predictions of a 1D-CNN model 
-trained to classify tsunami inundation events from multivariate time series recorded 
-by a network of 6 virtual buoys located off the coast of Coquimbo, Chile. As a 
-tsunami propagates from deep ocean toward the coast, the buoys record the wave signal 
-before it reaches shore. The model uses these 6 simultaneous time series as input 
-and predicts whether the event will cause inundation at a forecast point near 
-Coquimbo (see figure below).
+The project applies XAI techniques to interpret the predictions of a 1D-CNN model trained to classify tsunami inundation events from multivariate time series recorded by a network of 6 virtual buoys located off the coast of Coquimbo, Chile. As a tsunami propagates from deep ocean toward the coast, the buoys record the wave signal before it reaches shore. The model uses these 6 simultaneous time series as input and predicts whether the event will cause inundation at a forecast point near Coquimbo (see figure below).
 
 <p align="center">
   <img src="FIGS/mapa_boyas.png" width="500" alt="Buoy network and forecast point off the coast of Coquimbo, Chile"/>
 </p>
 
-Two XAI methods are implemented and compared: **ts-MULE** (Schlegel et al. 2021) 
-and **CONFETTI** (Cetina et al. 2026), identifying which temporal regions and 
-buoys are most relevant for the model's decisions. The figure below shows the 
-central result of the joint analysis: the relevant regions identified by each method 
-across all 6 buoys for a representative instance.
+Two different XAI methods are implemented and compared: **ts-MULE** (Schlegel et al. 2021) and **CONFETTI** (Cetina et al. 2026), identifying which temporal regions and buoys are most relevant for the model's decisions. The figures below show the main results of the analysis: (1) Regions of relevance indentified by TS-MULE, (2) Counterfactual generated with CONFETTI, and (3) a joint analysis overlapping the relevant regions identified by each method across, all three figures for all 6 buoys for a representative instance. Additionally, a relative importance of the 6 buoys to the prediction of one instance was implemented, consistently resulting on identifying the buoy 6 as the one that provides more information to the prediction.
+
 
 <p align="center">
-  <img src="FIGS/comparacion_regiones.png" width="750" alt="Relevant regions identified by ts-MULE and CONFETTI for each buoy"/>
+  <img src="FIGS/relevancia_por_boya.png" height="250"/>
+  <img src="FIGS/mejor_cf.png" height="250"/>
+  <img src="FIGS/comparacion_regiones.png" height="250"/>
 </p>
 
-The ultimate goal is to use these explainability results to determine the optimal 
-placement of virtual DART buoys for tsunami early warning.
+As an additional contribution, explicit fidelity metrics for evaluation were implemented. 
+
+For CONFETTI we used the 4 conditions based on Molnar (2023): (1) change of class, (2) diversity, (3) proximity, and (4) plausibility. For the latter, we propose a spectral analysis that is physically motivated by the resonance properties of Coquimbo bay (Catalán et al. 2025).
+
+For TS-MULE, two fidelity metrics were implemented: (1) Segment-level Deletion and (2) Segment-level Insertion. Both act directly over the segments identified by TS-MULE, which is appropriate given the explanation generated has a local segmentation nature.
 
 ---
 
 ## 🌊 Methods
 
 ### ts-MULE
-Local perturbation-based explainability method adapted for time series. Generates 
-relevance scores for each timestep and feature by fitting a local linear model 
-(Lasso regression) over perturbed samples (Schlegel et al. 2021).
+Local perturbation-based explainability method adapted for time series. Generates relevance scores for each timestep and feature by fitting a local linear model (Lasso regression) over perturbed samples (Schlegel et al. 2021).
 
 ### CONFETTI
-Counterfactual explanation method for time series. Generates counterfactual instances 
-— minimal modifications to the input that would change the model's prediction — 
-using a genetic algorithm (Cetina et al. 2026).
+Counterfactual explanation method for time series. Generates counterfactual instances — minimal modifications to the input that would change the model's prediction — using a genetic algorithm (Cetina et al. 2026).
 
-### Fidelity Metrics
-As an additional contribution, explicit fidelity metrics for evaluation are implemented. For CONFETTI we used the 4 conditions presented by Molnar (2023): (1) change of class, (2) diversity, (3) proximity, and (4) plausibility. For the last, we propose a spectral analysis that is physically motivated by the resonance properties of Coquimbo bay (Catalán et al. 2025).
+
 
 ---
 
@@ -65,9 +48,9 @@ As an additional contribution, explicit fidelity metrics for evaluation are impl
 ```
 ├── xai_utils/                  # Main XAI utility module
 │   ├── __init__.py
-│   ├── tsmule_analysis.py      # ts-MULE analysis function
-│   ├── tsmule_plots.py         # ts-MULE plotting functions
-│   ├── tsmule_convergence.py   # ts-MULE convergence analysis
+│   ├── tsmule_analysis.py      # TS-MULE analysis function
+│   ├── tsmule_plots.py         # TS-MULE plotting functions
+│   ├── tsmule_convergence.py   # TS-MULE convergence analysis
 │   ├── confetti_analysis.py    # CONFETTI analysis function
 │   ├── confetti_plots.py       # CONFETTI plotting functions
 │   ├── confetti_convergence.py # CONFETTI convergence analysis
@@ -76,7 +59,7 @@ As an additional contribution, explicit fidelity metrics for evaluation are impl
 │
 ├── 0X_name.ipynb               # Introductory files, data and model setup
 ├── 1X_name.ipynb               # CONFETTI implementation (Cetina et al. 2026)
-├── 2X_name.ipynb               # ts-MULE implementation (Schlegel et al. 2021)
+├── 2X_name.ipynb               # TS-MULE implementation (Schlegel et al. 2021)
 ├── 3X_name.ipynb               # Joint analysis using both methods
 ├── 4x_name.ipynb               # Fidelity metrics 
 │
@@ -84,7 +67,7 @@ As an additional contribution, explicit fidelity metrics for evaluation are impl
 ├── MODELS/                     # Trained models (see Installation for download)
 ├── FIGS/                       # Empty folder for results (codes fail if doesn't exist)
 ├── RESULTADOS_COMPARACION/     # Empty folder for results (codes fail if doesn't exist)
-├── RESULTADOS_MULTI/     # Empty folder for results (codes fail if doesn't exist)
+├── RESULTADOS_MULTI/           # Empty folder for results (codes fail if doesn't exist)
 ├── RESULTADOS_CONFETTI/        # Empty folder for results (codes fail if doesn't exist)
 ├── RESULTADOS_TSMULE/          # Empty folder for results (codes fail if doesn't exist)
 ├── METHODS/                    # Place TS-MULE and CONFETTI repositories here
@@ -121,8 +104,7 @@ conda activate xai_tsunami
 
    Once downloaded, follow the installation instructions for each package:
 
-   **ts-MULE** — No installation required. Download the folder and place it 
-   in `METHODS/ts-mule/` at the root of the repository. Then add it to the 
+   **TS-MULE** — No installation required. Download the folder and place it in `METHODS/ts-mule/` at the root of the repository. Then add it to the 
    Python path at the beginning of each notebook:
 ```python
    import sys
@@ -133,8 +115,7 @@ conda activate xai_tsunami
 ```bash
    pip install confetti-ts
 ```
-   Alternatively, download the package from the link above and install from 
-   its local directory:
+   Alternatively, download the package from the link above and install from its local directory:
 ```bash
    cd path/to/confetti
    pip install confetti-ts
@@ -192,7 +173,7 @@ metricas = reporte_cf(
 
 | Method | Optimal Parameters | Computation Time |
 |:---:|:---:|:---:|
-| ts-MULE | n_runs=300, n_samples=100 | ~9.8 min |
+| TS-MULE | n_runs=300, n_samples=100 | ~9.8 min |
 | CONFETTI | population_size=100, max_generations=200 | between 9.0 and 45 min* |
 
 
@@ -201,11 +182,9 @@ metricas = reporte_cf(
 
 ---
 
-## 🐛 Bug Fixes in ts-MULE
+## 🐛 Bug Fixes in TS-MULE
 
-The following bugs were identified and corrected from the original ts-MULE repository. 
-The modified version available for download in this repository already incorporates 
-all these fixes.
+The following bugs were identified and corrected from the original ts-MULE repository. The modified version available for download in this repository already incorporates all these fixes.
 
 | # | File | Function | Bug | Fix |
 |:---:|:---|:---|:---|:---|
@@ -219,8 +198,7 @@ all these fixes.
 
 ## 📁 Data
 
-The dataset used in this project consists of synthetic tsunami time series 
-generated from numerical simulations, recorded by a network of 6 virtual buoys.
+The dataset used in this project consists of synthetic tsunami time series generated from numerical simulations, recorded by a network of 6 virtual buoys.
 
 | Dataset | Download | Description |
 |:---|:---:|:---|
@@ -282,24 +260,16 @@ The methods implemented in this project are based on the following repositories:
 
 ## 📚 References
 
-- Catalán, P. A., et al. (2025). Toward the Classification of Bays Based on Their 
-Resonant Response to Tsunamis. *Journal of Geophysical Research: Oceans*.
+- Catalán, P. A., et al. (2025). Toward the Classification of Bays Based on Their Resonant Response to Tsunamis. *Journal of Geophysical Research: Oceans*.
 
-- Cetina, A. G. P., Benguessoum, K., Lourenço, R., & Kubler, S. (2026). Counterfactual 
-Explainable AI (XAI) Method for Deep Learning-Based Multivariate Time Series 
-Classification. *Proceedings of the AAAI Conference on Artificial Intelligence*, 
-17393–17400. 
+- Cetina, A. G. P., Benguessoum, K., Lourenço, R., & Kubler, S. (2026). Counterfactual Explainable AI (XAI) Method for Deep Learning-Based Multivariate Time Series Classification. *Proceedings of the AAAI Conference on Artificial Intelligence*, 17393–17400. 
 [https://arxiv.org/abs/2511.13237](https://arxiv.org/abs/2511.13237)
 
 - Molnar, C. (2023). *Interpretable Machine Learning* (3rd ed.).
 [https://christophm.github.io/interpretable-ml-book](https://christophm.github.io/interpretable-ml-book)
 
-- Núñez, J., Catalán, P. A., Valle, C., Zamora, N., & Valderrama, A. (2022). 
-Discriminating the occurrence of inundation in tsunami early warning with 
-one-dimensional convolutional neural networks. *Scientific Reports*, 12(1). 
+- Núñez, J., Catalán, P. A., Valle, C., Zamora, N., & Valderrama, A. (2022). Discriminating the occurrence of inundation in tsunami early warning with one-dimensional convolutional neural networks. *Scientific Reports*, 12(1). 
 [https://doi.org/10.1038/s41598-022-13788-9](https://doi.org/10.1038/s41598-022-13788-9)
 
-- Schlegel, U., Lam, D. V., Keim, D. A., & Seebacher, D. (2021). TS-MULE: Local 
-Interpretable Model-Agnostic Explanations for Time Series Forecast Models. *Joint 
-European Conference on Machine Learning and Knowledge Discovery in Databases*, 5–14. 
+- Schlegel, U., Lam, D. V., Keim, D. A., & Seebacher, D. (2021). TS-MULE: Local Interpretable Model-Agnostic Explanations for Time Series Forecast Models. *Joint European Conference on Machine Learning and Knowledge Discovery in Databases*, 5–14. 
 [https://arxiv.org/abs/2109.08438](https://arxiv.org/abs/2109.08438)
