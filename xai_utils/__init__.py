@@ -46,9 +46,33 @@ __all__ = [
     'plot_comparison_regions',
     'plot_comparison_heatmaps'
 ]
-from .confetti_convergence import run_confetti_convergence
+#from .confetti_convergence import run_confetti_convergence
 
-__all__ += ['run_confetti_convergence']
-from .tsmule_convergence import run_tsmule_convergence
+#__all__ += ['run_confetti_convergence']
+#from .tsmule_convergence import run_tsmule_convergence
 
-__all__ += ['run_tsmule_convergence']
+#__all__ += ['run_tsmule_convergence']
+#from .confetti_convergence import plot_confetti_convergence
+
+__all__ += ['plot_confetti_convergence']
+from .importancia_boyas import (
+    compute_boya_importance_tsmule,
+    compute_boya_importance,
+    compute_boya_modification_frequency,
+    compute_modification_threshold,
+    plot_boya_importance_tsmule,
+    plot_boya_importance_confetti,
+    plot_boya_importance_comparison,
+    plot_boya_modification_frequency
+)
+
+__all__ += [
+    'compute_boya_importance_tsmule',
+    'compute_boya_importance',
+    'compute_boya_modification_frequency',
+    'compute_modification_threshold',
+    'plot_boya_importance_tsmule',
+    'plot_boya_importance_confetti',
+    'plot_boya_importance_comparison',
+    'plot_boya_modification_frequency'
+]

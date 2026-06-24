@@ -4,7 +4,9 @@ Explainability analysis of a deep learning model for tsunami classification usin
 time series data from buoy sensors. This repository implements and compares two 
 XAI (Explainable Artificial Intelligence) methods: **ts-MULE** (Schlegel et al. 2021)
 and **CONFETTI** (Cetina et al. 2026), to explain predictions of a modified version of the
-model proposed by Núñez et al. (2022).
+model proposed by Núñez et al. (2022). As an additional contribution, explicit 
+fidelity metrics for counterfactual quality evaluation are implemented, including 
+proximity and spectral plausibility.
 
 ---
 
@@ -28,9 +30,16 @@ Coquimbo (see figure below).
 
 Two XAI methods are implemented and compared: **ts-MULE** (Schlegel et al. 2021) 
 and **CONFETTI** (Cetina et al. 2026), identifying which temporal regions and 
-buoys are most relevant for the model's decisions. The ultimate goal is to use 
-these explainability results to determine the optimal placement of virtual DART 
-buoys for tsunami early warning.
+buoys are most relevant for the model's decisions. The figure below shows the 
+central result of the joint analysis: the relevant regions identified by each method 
+across all 6 buoys for a representative instance.
+
+<p align="center">
+  <img src="FIGS/comparacion_regiones.png" width="750" alt="Relevant regions identified by ts-MULE and CONFETTI for each buoy"/>
+</p>
+
+The ultimate goal is to use these explainability results to determine the optimal 
+placement of virtual DART buoys for tsunami early warning.
 
 ---
 
@@ -46,6 +55,9 @@ Counterfactual explanation method for time series. Generates counterfactual inst
 — minimal modifications to the input that would change the model's prediction — 
 using a genetic algorithm (Cetina et al. 2026).
 
+### Fidelity Metrics
+As an additional contribution, explicit fidelity metrics for evaluation are implemented. For CONFETTI we used the 4 conditions presented by Molnar (2023): (1) change of class, (2) diversity, (3) proximity, and (4) plausibility. For the last, we propose a spectral analysis that is physically motivated by the resonance properties of Coquimbo bay (Catalán et al. 2025).
+
 ---
 
 ## 🗂️ Repository Structure
@@ -59,17 +71,20 @@ using a genetic algorithm (Cetina et al. 2026).
 │   ├── confetti_analysis.py    # CONFETTI analysis function
 │   ├── confetti_plots.py       # CONFETTI plotting functions
 │   ├── confetti_convergence.py # CONFETTI convergence analysis
+│   ├── fidelidad_confetti.py   # Fidelity metrics for CONFETTI
 │   └── comparison_plots.py     # Comparative plotting functions
 │
 ├── 0X_name.ipynb               # Introductory files, data and model setup
 ├── 1X_name.ipynb               # CONFETTI implementation (Cetina et al. 2026)
 ├── 2X_name.ipynb               # ts-MULE implementation (Schlegel et al. 2021)
 ├── 3X_name.ipynb               # Joint analysis using both methods
+├── 4x_name.ipynb               # Fidelity metrics 
 │
 ├── DATA/                       # Dataset (see Data section for download)
 ├── MODELS/                     # Trained models (see Installation for download)
 ├── FIGS/                       # Empty folder for results (codes fail if doesn't exist)
 ├── RESULTADOS_COMPARACION/     # Empty folder for results (codes fail if doesn't exist)
+├── RESULTADOS_MULTI/     # Empty folder for results (codes fail if doesn't exist)
 ├── RESULTADOS_CONFETTI/        # Empty folder for results (codes fail if doesn't exist)
 ├── RESULTADOS_TSMULE/          # Empty folder for results (codes fail if doesn't exist)
 ├── METHODS/                    # Place TS-MULE and CONFETTI repositories here
@@ -137,6 +152,7 @@ pip install -r requirements.txt
 from xai_utils import analyze_with_tsmule, analyze_with_confetti
 from xai_utils import plot_relevance_map, plot_best_counterfactual
 from xai_utils import plot_comparison_summary
+from xai_utils.fidelidad_confetti import reporte_cf, evaluar_todos_cfs, search_best_cf
 
 # ts-MULE analysis
 resultados_tsmule = analyze_with_tsmule(
@@ -158,6 +174,16 @@ resultados_cf = analyze_with_confetti(
 
 # Comparative visualization
 plot_comparison_summary(resultados_tsmule, resultados_cf)
+
+# Fidelity evaluation
+metricas = reporte_cf(
+    original=instance[0], original_label=original_label,
+    cf=resultados_cf['results'][0].best.counterfactual,
+    cf_label=resultados_cf['results'][0].best.label,
+    all_cfs=resultados_cf['results'][0].all_counterfactuals,
+    nun=resultados_cf['results'][0].nearest_unlike_neighbour,
+    X_train=X_train
+)
 ```
 
 ---
@@ -169,7 +195,9 @@ plot_comparison_summary(resultados_tsmule, resultados_cf)
 | ts-MULE | n_runs=300, n_samples=100 | ~9.8 min |
 | CONFETTI | population_size=100, max_generations=200 | between 9.0 and 45 min* |
 
-*Computation time is strongly dependent on the complexity of the instance being analysed
+
+*Computation time is strongly dependent on the complexity of the instance being analysed  
+
 
 ---
 
@@ -188,6 +216,7 @@ all these fixes.
 | 5 | `tsmule/xai/evaluation.py` | `PerturbationBase._randomize()` | `n_ons` could become negative when `n_offs * (1 + delta) > n_steps` | Added `np.clip(n_offs, 0, n_steps)` |
 
 ---
+
 ## 📁 Data
 
 The dataset used in this project consists of synthetic tsunami time series 
@@ -196,7 +225,6 @@ generated from numerical simulations, recorded by a network of 6 virtual buoys.
 | Dataset | Download | Description |
 |:---|:---:|:---|
 | Data set | [Download](https://drive.google.com/drive/folders/1D_eD67j7sEbZy7gyZfP9cTYWzXqrEuoh?usp=drive_link) | X_train, y_train, X_val, y_val, X_test, y_test |
-
 
 Once downloaded, place the files in a `DATA/` folder at the root of the repository:
 ```
@@ -208,6 +236,8 @@ Once downloaded, place the files in a `DATA/` folder at the root of the reposito
 │   ├── X_test_new.pickle
 │   └── y_test_new.pickle
 ```
+
+---
 
 ## 📋 Requirements
 
@@ -237,6 +267,8 @@ See `requirements.txt` for full dependency list.
 
 This project is for academic purposes only.
 
+---
+
 ## 🔗 Reference Repositories
 
 The methods implemented in this project are based on the following repositories:
@@ -246,13 +278,21 @@ The methods implemented in this project are based on the following repositories:
 | TS-MULE | [Repository](https://github.com/visual-xai-for-time-series/ts-mule) |
 | CONFETTI | [Repository](https://github.com/serval-uni-lu/confetti) |
 
+---
+
 ## 📚 References
+
+- Catalán, P. A., et al. (2025). Toward the Classification of Bays Based on Their 
+Resonant Response to Tsunamis. *Journal of Geophysical Research: Oceans*.
 
 - Cetina, A. G. P., Benguessoum, K., Lourenço, R., & Kubler, S. (2026). Counterfactual 
 Explainable AI (XAI) Method for Deep Learning-Based Multivariate Time Series 
 Classification. *Proceedings of the AAAI Conference on Artificial Intelligence*, 
 17393–17400. 
 [https://arxiv.org/abs/2511.13237](https://arxiv.org/abs/2511.13237)
+
+- Molnar, C. (2023). *Interpretable Machine Learning* (3rd ed.).
+[https://christophm.github.io/interpretable-ml-book](https://christophm.github.io/interpretable-ml-book)
 
 - Núñez, J., Catalán, P. A., Valle, C., Zamora, N., & Valderrama, A. (2022). 
 Discriminating the occurrence of inundation in tsunami early warning with 
@@ -263,5 +303,3 @@ one-dimensional convolutional neural networks. *Scientific Reports*, 12(1).
 Interpretable Model-Agnostic Explanations for Time Series Forecast Models. *Joint 
 European Conference on Machine Learning and Knowledge Discovery in Databases*, 5–14. 
 [https://arxiv.org/abs/2109.08438](https://arxiv.org/abs/2109.08438)
-
-

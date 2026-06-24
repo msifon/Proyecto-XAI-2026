@@ -8,28 +8,67 @@
 
 # Archivos pickle
 *.pkl
+*.pickle
+
+# ============================================================
+# Resultados
+# ============================================================
 
 # Carpetas de resultados
-RESULTADOS_*/
-CONVERGENCIA_*/
-RESULTADOS_TSMULE/
-RESULTADOS_CONFETTI/
-RESULTADOS_COMPARACION/
+RESULTADOS_*/*
+!RESULTADOS_*/.gitkeep
+CONVERGENCIA_*/*
+!CONVERGENCIA_*/.gitkeep
 
 # ============================================================
 # Modelos
 # ============================================================
-MODELS/
+MODELS/*
 *.keras
 *.h5
 *.pb
+!MODELS/.gitkeep
 
 # ============================================================
 # Datos
 # ============================================================
+DATA/*
 *.csv
 *.hdf5
 *.mat
+!DATA/.gitkeep
+
+# ============================================================
+# Figuras
+# ============================================================
+*.png
+FIGS/*.png
+!FIGS/mapa_boyas.png
+!FIGS/comparacion_regiones.png
+!FIGS/.gitkeep
+
+# ============================================================
+# Metodos
+# ============================================================
+METHODS/*
+!METHODS/.gitkeep
+
+# ============================================================
+# Códigos python
+# ============================================================
+!xai_utils/
+!xai_utils/**
+
+# ============================================================
+# Informes
+# ============================================================
+
+INFORMES/*.mp4
+INFORMES/*.pdf
+!INFORMES/Proyecto_INF473_Entrega_1.mp4
+!INFORMES/Proyecto_INF473_Entrega_2.mp4
+!INFORMES/.gitkeep
+
 
 # ============================================================
 # Entornos virtuales y Conda
@@ -76,3 +115,9 @@ desktop.ini
 *.fdb_latexmk
 *.bbl
 *.blg
+
+# ============================================================
+# Datos geoespaciales y referencias
+# ============================================================
+REFS/
+ne_10m_bathymetry_all/
