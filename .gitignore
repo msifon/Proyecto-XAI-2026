@@ -45,6 +45,8 @@ DATA/*
 FIGS/*.png
 !FIGS/mapa_boyas.png
 !FIGS/comparacion_regiones.png
+!FIGS/relevancia_por_boya.png
+!FIGS/mejor_cf.png
 !FIGS/.gitkeep
 
 # ============================================================
