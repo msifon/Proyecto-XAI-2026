@@ -18,9 +18,9 @@ Two different XAI methods are implemented and compared: **ts-MULE** (Schlegel et
 
 
 <p align="center">
-  <img src="FIGS/relevancia_por_boya.png" height="250"/>
-  <img src="FIGS/mejor_cf.png" height="250"/>
-  <img src="FIGS/comparacion_regiones.png" height="250"/>
+  <img src="FIGS/relevancia_por_boya.png" height="350"/>
+  <img src="FIGS/mejor_cf.png" height="350"/>
+  <img src="FIGS/comparacion_regiones.png" height="300"/>
 </p>
 
 As an additional contribution, explicit fidelity metrics for evaluation were implemented. 
