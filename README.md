@@ -29,6 +29,8 @@ For CONFETTI we used the 4 conditions based on Molnar (2023): (1) change of clas
 
 For TS-MULE, two fidelity metrics were implemented: (1) Segment-level Deletion and (2) Segment-level Insertion. Both act directly over the segments identified by TS-MULE, which is appropriate given the explanation generated has a local segmentation nature.
 
+Finally, a joint analysis was carried out to account the concordancy between both methods, as a proxy to a joint fidelity metric, which is independet from the metrics described above. Here we answer "which of the timesteps modified by CONFETTI occur inside a window indetified as relevant by TS-MULE" (recall).
+
 ---
 
 ## 🌊 Methods
@@ -38,7 +40,6 @@ Local perturbation-based explainability method adapted for time series. Generate
 
 ### CONFETTI
 Counterfactual explanation method for time series. Generates counterfactual instances — minimal modifications to the input that would change the model's prediction — using a genetic algorithm (Cetina et al. 2026).
-
 
 
 ---

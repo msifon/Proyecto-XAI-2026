@@ -2,23 +2,13 @@
 Análisis de importancia de boyas con TSMULE y CONFETTI, para un modelo.
 """
 
-import sys,os, warnings, logging, pickle
-#import contextlib
-import numpy as np
-#import pandas as pd
-#import matplotlib.pyplot as plt
+import warnings, logging, pickle
 
-sys.path.insert(0, 'METHODS/ts-mule')
 
 # Filter out all RuntimeWarning
 warnings.filterwarnings("ignore", category=RuntimeWarning) 
 warnings.filterwarnings("ignore") #supress warnings
 logging.getLogger("stumpy").setLevel(logging.ERROR)
-
-import keras
-#from keras.models import load_model
-os.environ['NUMBA_DISABLE_JIT'] = '0'
-os.environ['NUMBA_CACHE_DIR'] = ''
 
 from importancia_boyas import plot_boya_importance_comparison
 										
