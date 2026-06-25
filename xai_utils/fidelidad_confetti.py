@@ -98,20 +98,30 @@ def detectar_zona_modificada(original, cf, umbral=1e-6):
 # 2. ESPECTRO DE REFERENCIA
 # =============================================================================
 
-def calcular_espectro_referencia(X_train, t_ini_ref, t_fin_ref):
+def calcular_espectro_referencia(X_train, t_ini_ref, t_fin_ref,
+                                  n_fft=241):
     """
     Calcula la distribución espectral de referencia sobre X_train,
-    usando la ventana temporal [t_ini_ref, t_fin_ref].
+    usando la ventana temporal [t_ini_ref, t_fin_ref] con zero-padding
+    hasta n_fft puntos.
 
     Las series se normalizan por amplitud máxima antes de la FFT para
     comparar exclusivamente la estructura frecuencial, independiente
     de la amplitud (que varía significativamente entre clases).
+
+    El zero-padding mejora la resolución frecuencial de ventanas cortas
+    sin agregar información nueva, permitiendo identificar correctamente
+    los períodos dominantes de tsunami (34.4 y 30.1 min) incluso sobre
+    ventanas menores a 241 timesteps.
 
     Parámetros
     ----------
     X_train : np.ndarray, shape (n, timesteps, channels)
     t_ini_ref : int
     t_fin_ref : int
+    n_fft : int
+        Número de puntos para la FFT (zero-padding). Default=241
+        (longitud total de la serie).
 
     Retorna
     -------
@@ -135,32 +145,45 @@ def calcular_espectro_referencia(X_train, t_ini_ref, t_fin_ref):
     n_canales     = X_train.shape[2]
     largo_ventana = t_fin_ref - t_ini_ref + 1
 
-    freqs   = np.fft.rfftfreq(largo_ventana, d=1.0)
+    # n_fft debe ser al menos tan largo como la ventana
+    n_fft_efectivo = max(n_fft, largo_ventana)
+
+    # Frecuencias con resolución de n_fft_efectivo puntos
+    freqs   = np.fft.rfftfreq(n_fft_efectivo, d=1.0)
     n_freqs = len(freqs)
 
     espectros = np.zeros((n_instancias, n_freqs, n_canales))
     for i in range(n_instancias):
         for ch in range(n_canales):
-            serie    = X_train[i, t_ini_ref:t_fin_ref + 1, ch]
-            amp_max  = np.abs(serie).max()
+            serie      = X_train[i, t_ini_ref:t_fin_ref + 1, ch]
+            amp_max    = np.abs(serie).max()
             serie_norm = serie / amp_max if amp_max > 1e-10 else serie
-            espectros[i, :, ch] = np.abs(np.fft.rfft(serie_norm))
+            espectros[i, :, ch] = np.abs(np.fft.rfft(serie_norm,
+                                                       n=n_fft_efectivo))
 
-    # Promedio sobre canales → distribución sobre instancias
-    esp_todas  = espectros.mean(axis=2)          # (n, n_freqs)
-    esp_median = np.median(esp_todas, axis=0)
-    esp_p5     = np.percentile(esp_todas,  5, axis=0)
-    esp_p95    = np.percentile(esp_todas, 95, axis=0)
+    # Estadísticas por boya — shape (n_canales, n_freqs)
+    esp_median_ch = np.median(espectros, axis=0).T   # (n_canales, n_freqs)
+    esp_p5_ch     = np.percentile(espectros,  5, axis=0).T
+    esp_p95_ch    = np.percentile(espectros, 95, axis=0).T
 
-    # Umbral P5: similitud coseno mínima observada en el 95% de instancias reales
-    sims_ref = np.array([
-        np.dot(esp_todas[i], esp_median) /
-        (norm(esp_todas[i]) * norm(esp_median) + 1e-10)
-        for i in range(n_instancias)
-    ])
-    umbral_p5 = float(np.percentile(sims_ref, 5))
+    # Umbral P5 por boya — shape (n_canales,)
+    umbral_p5_ch = np.zeros(n_canales)
+    for ch in range(n_canales):
+        sims_ch = np.array([
+            np.dot(espectros[i, :, ch], esp_median_ch[ch]) /
+            (norm(espectros[i, :, ch]) * norm(esp_median_ch[ch]) + 1e-10)
+            for i in range(n_instancias)
+        ])
+        umbral_p5_ch[ch] = float(np.percentile(sims_ch, 5))
 
-    return freqs, esp_median, esp_p5, esp_p95, esp_todas, umbral_p5
+    # Promedio sobre canales — para gráfico ilustrativo y compatibilidad
+    esp_todas  = espectros.mean(axis=2)        # (n, n_freqs)
+    esp_median = esp_median_ch.mean(axis=0)    # (n_freqs,)
+    esp_p5     = esp_p5_ch.mean(axis=0)
+    esp_p95    = esp_p95_ch.mean(axis=0)
+
+    return (freqs, esp_median, esp_p5, esp_p95, esp_todas,
+            esp_median_ch, esp_p5_ch, esp_p95_ch, umbral_p5_ch)
 
 
 # =============================================================================
@@ -168,13 +191,20 @@ def calcular_espectro_referencia(X_train, t_ini_ref, t_fin_ref):
 # =============================================================================
 
 def plausibilidad_espectral(cf, t_ini, t_fin, X_train,
-                             n_timesteps_total=241, min_ventana=61):
+                             n_timesteps_total=241, min_ventana=61,
+                             n_fft=241):
     """
     Calcula la plausibilidad espectral del CF comparando su espectro
     normalizado contra la distribución de referencia de X_train.
 
-    El espectro de referencia se calcula sobre la misma ventana temporal
-    que el CF, garantizando comparabilidad frecuencial sin interpolación.
+    El espectro se calcula sobre la ventana efectiva del CF con
+    zero-padding hasta n_fft puntos, lo que mejora la resolución
+    frecuencial sin agregar información nueva. Esto permite identificar
+    correctamente los períodos dominantes de tsunami (34.4 y 30.1 min)
+    incluso sobre ventanas cortas.
+
+    Tanto el CF como la referencia usan el mismo n_fft, garantizando
+    comparabilidad frecuencial.
 
     Parámetros
     ----------
@@ -187,25 +217,18 @@ def plausibilidad_espectral(cf, t_ini, t_fin, X_train,
         Datos de entrenamiento — referencia espectral.
     n_timesteps_total : int
     min_ventana : int
+    n_fft : int
+        Puntos para zero-padding en la FFT. Default=241.
 
     Retorna
     -------
     similitud : float
-        Similitud coseno CF vs mediana de referencia [0, 1].
     percentil : float
-        Percentil de la similitud del CF en la distribución intra-referencia.
     es_plausible : bool
-        True si similitud >= umbral P5 de referencia.
     t_ini_exp, t_fin_exp : int
-        Ventana efectivamente usada.
     freqs : np.ndarray
-        Frecuencias del espectro calculado.
-    esp_median : np.ndarray
-        Mediana de referencia (para graficar).
-    esp_p5, esp_p95 : np.ndarray
-        Banda de referencia (para graficar).
+    esp_median, esp_p5, esp_p95 : np.ndarray
     umbral_p5 : float
-        Umbral de plausibilidad usado.
     """
     from numpy.linalg import norm
 
@@ -213,36 +236,60 @@ def plausibilidad_espectral(cf, t_ini, t_fin, X_train,
     t_ini_exp, t_fin_exp = expandir_ventana(t_ini, t_fin,
                                              n_timesteps_total, min_ventana)
 
-    # Calcular espectro de referencia para esta ventana específica
-    freqs, esp_median, esp_p5, esp_p95, esp_todas, umbral_p5 = \
-        calcular_espectro_referencia(X_train, t_ini_exp, t_fin_exp)
+    # Calcular espectro de referencia con zero-padding para esta ventana
+    (freqs, esp_median, esp_p5, esp_p95, esp_todas,
+     esp_median_ch, esp_p5_ch, esp_p95_ch, umbral_p5_ch) = \
+        calcular_espectro_referencia(X_train, t_ini_exp, t_fin_exp, n_fft=n_fft)
 
-    # Espectro del CF sobre la misma ventana, promediado sobre canales
-    n_canales = cf.shape[1]
-    esp_cf_canales = np.zeros((len(freqs), n_canales))
+    # Reconstruir espectros por boya para calcular percentiles
+    # (necesario porque calcular_espectro_referencia no los retorna individualmente)
+    n_instancias = X_train.shape[0]
+    n_canales    = cf.shape[1]
+    n_fft_ef     = max(n_fft, t_fin_exp - t_ini_exp + 1)
+    espectros_ref = np.zeros((n_instancias, len(freqs), n_canales))
+    for i in range(n_instancias):
+        for ch in range(n_canales):
+            serie      = X_train[i, t_ini_exp:t_fin_exp + 1, ch]
+            amp_max    = np.abs(serie).max()
+            serie_norm = serie / amp_max if amp_max > 1e-10 else serie
+            espectros_ref[i, :, ch] = np.abs(np.fft.rfft(serie_norm, n=n_fft_ef))
+
+    # Espectro del CF por boya
+    esp_cf_ch = np.zeros((n_canales, len(freqs)))
     for ch in range(n_canales):
         serie      = cf[t_ini_exp:t_fin_exp + 1, ch]
         amp_max    = np.abs(serie).max()
         serie_norm = serie / amp_max if amp_max > 1e-10 else serie
-        esp_cf_canales[:, ch] = np.abs(np.fft.rfft(serie_norm))
-    esp_cf = esp_cf_canales.mean(axis=1)
+        esp_cf_ch[ch] = np.abs(np.fft.rfft(serie_norm, n=n_fft_ef))
 
-    # Similitud coseno CF vs mediana de referencia
-    similitud = float(np.dot(esp_cf, esp_median) /
-                      (norm(esp_cf) * norm(esp_median) + 1e-10))
+    # Similitud coseno y percentil por boya
+    similitudes_ch = np.zeros(n_canales)
+    percentiles_ch = np.zeros(n_canales)
+    for ch in range(n_canales):
+        similitudes_ch[ch] = float(
+            np.dot(esp_cf_ch[ch], esp_median_ch[ch]) /
+            (norm(esp_cf_ch[ch]) * norm(esp_median_ch[ch]) + 1e-10)
+        )
+        sims_ref_ch = np.array([
+            np.dot(espectros_ref[i, :, ch], esp_median_ch[ch]) /
+            (norm(espectros_ref[i, :, ch]) * norm(esp_median_ch[ch]) + 1e-10)
+            for i in range(n_instancias)
+        ])
+        percentiles_ch[ch] = float(percentileofscore(sims_ref_ch, similitudes_ch[ch]))
 
-    # Percentil en distribución intra-referencia
-    sims_ref = np.array([
-        np.dot(esp_todas[i], esp_median) /
-        (norm(esp_todas[i]) * norm(esp_median) + 1e-10)
-        for i in range(len(esp_todas))
-    ])
-    percentil    = float(percentileofscore(sims_ref, similitud))
-    es_plausible = similitud >= umbral_p5
+    # Veredicto por boya y global
+    es_plausible_ch = similitudes_ch >= umbral_p5_ch   # (n_canales,) bool
+    es_plausible    = bool(np.all(es_plausible_ch))    # True solo si todas pasan
+
+    # Resumen: promedio sobre boyas
+    similitud = float(similitudes_ch.mean())
+    percentil = float(percentiles_ch.mean())
 
     return (similitud, percentil, es_plausible,
             t_ini_exp, t_fin_exp,
-            freqs, esp_median, esp_p5, esp_p95, umbral_p5)
+            freqs, esp_median, esp_p5, esp_p95,
+            similitudes_ch, es_plausible_ch, umbral_p5_ch,
+            esp_median_ch, esp_p5_ch, esp_p95_ch)
 
 
 # =============================================================================
@@ -293,17 +340,30 @@ def plot_cf_channels(original, cf, original_label, cf_label, channel_names=None)
 def plot_plausibilidad_espectral(cf, original, original_label, cf_label,
                                   t_ini, t_fin, t_ini_exp, t_fin_exp,
                                   freqs, esp_median, esp_p5, esp_p95,
-                                  similitud, percentil, es_plausible):
+                                  similitud, percentil, es_plausible,
+                                  similitudes_ch=None, es_plausible_ch=None,
+                                  umbral_p5_ch=None, esp_median_ch=None,
+                                  esp_p5_ch=None, esp_p95_ch=None,
+                                  channel_names=None):
     """
     Gráfico de dos paneles:
-    - Panel izquierdo: señal original vs CF en la ventana analizada,
-      con zona modificada por CONFETTI resaltada.
-    - Panel derecho: espectro del CF vs banda P5-P95 de referencia
-      y mediana de referencia, ambos calculados sobre la misma ventana.
+    - Panel izquierdo: señal original vs CF (promedio de canales) en la
+      ventana analizada, con zona modificada resaltada.
+    - Panel derecho: espectro de las 6 boyas del CF vs banda P5-P95
+      de referencia por boya, con veredicto individual.
     """
-    fig, axes = plt.subplots(1, 2, figsize=(16, 5))
+    n_canales = cf.shape[1]
+    if channel_names is None:
+        channel_names = [f'Boya {i+1}' for i in range(n_canales)]
 
-    # --- Panel izquierdo: señal (promedio de canales) ---
+    n_fft      = (len(freqs) - 1) * 2
+    freqs_plot = freqs[1:]
+    periodos   = 1.0 / freqs_plot
+    largo_real = t_fin_exp - t_ini_exp + 1
+
+    fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+
+    # --- Panel izquierdo: señal promedio ---
     ax        = axes[0]
     t_ventana = np.arange(t_ini_exp, t_fin_exp + 1)
     orig_mean = original[t_ini_exp:t_fin_exp + 1, :].mean(axis=1)
@@ -321,43 +381,48 @@ def plot_plausibilidad_espectral(cf, original, original_label, cf_label,
     ax.set_title(f'Señal original vs CF\n(ventana analizada: t={t_ini_exp}-{t_fin_exp})')
     ax.legend(fontsize=8)
 
-    # --- Panel derecho: espectro ---
+    # --- Panel derecho: espectro por boya ---
     ax = axes[1]
-    # Excluir componente DC (freq=0) para el gráfico
-    freqs_plot = freqs[1:]
-    periodos   = 1.0 / freqs_plot
 
+    # Paleta de colores por boya
+    colores = ['#e41a1c', '#ff7f00', '#4daf4a', '#984ea3', '#377eb8', '#a65628']
+
+    # Banda de referencia promedio (fondo)
     ax.fill_between(periodos, esp_p5[1:], esp_p95[1:],
-                    alpha=0.3, color='blue',
-                    label='Banda P5-P95 referencia (X_train)')
-    ax.plot(periodos, esp_median[1:], color='blue', linewidth=1.5,
-            linestyle='--', label='Mediana referencia')
+                    alpha=0.15, color='gray', label='Banda P5-P95 ref. (promedio)')
+    ax.plot(periodos, esp_median[1:], color='gray', linewidth=1,
+            linestyle='--', alpha=0.6, label='Mediana ref. (promedio)')
 
-    # Espectro del CF
-    esp_cf_plot = np.zeros(len(freqs))
-    for ch in range(cf.shape[1]):
+    # Espectro por boya
+    for ch in range(n_canales):
         serie      = cf[t_ini_exp:t_fin_exp + 1, ch]
         amp_max    = np.abs(serie).max()
         serie_norm = serie / amp_max if amp_max > 1e-10 else serie
-        esp_cf_plot += np.abs(np.fft.rfft(serie_norm))
-    esp_cf_plot /= cf.shape[1]
+        esp_cf_ch  = np.abs(np.fft.rfft(serie_norm, n=n_fft))
 
-    veredicto = '✅ Plausible' if es_plausible else '❌ No plausible'
-    ax.plot(periodos, esp_cf_plot[1:], color='red', linewidth=2,
-            label=f'CF (sim={similitud:.3f}, P{percentil:.0f}) {veredicto}')
+        if similitudes_ch is not None and es_plausible_ch is not None:
+            veredicto = '✅' if es_plausible_ch[ch] else '❌'
+            lbl = (f'{channel_names[ch]}: sim={similitudes_ch[ch]:.3f} {veredicto}')
+        else:
+            lbl = channel_names[ch]
 
+        ax.plot(periodos, esp_cf_ch[1:], color=colores[ch],
+                linewidth=1.2, alpha=0.8, label=lbl)
+
+    veredicto_global = 'Plausible' if es_plausible else 'No plausible'
     ax.set_xlabel('Período (minutos)')
     ax.set_ylabel('Magnitud espectral normalizada')
-    ax.set_title('Análisis espectral — CF vs referencia X_train\n'
-                 f'(ventana: {t_fin_exp - t_ini_exp + 1} timesteps)')
-    ax.legend(fontsize=8)
-    largo = t_fin_exp - t_ini_exp + 1
-    ax.set_xlim([2, largo])
+    ax.set_title(f'Análisis espectral por boya — {veredicto_global}\n'
+                 f'(sim. media={similitud:.3f}, ventana: {largo_real} ts)')
+    ax.legend(fontsize=7, loc='upper left')
+    ax.set_xlim([2, largo_real])
 
     plt.suptitle(
         f'Plausibilidad espectral — label {original_label}→{cf_label}',
         fontsize=12
     )
+    plt.tight_layout()
+    plt.show()
     plt.tight_layout()
     plt.show()
 
@@ -424,14 +489,20 @@ def reporte_cf(original, original_label, cf, cf_label, all_cfs, nun,
     # 4. PLAUSIBILITY ESPECTRAL
     # ---------------------------------------------------------------
     if t_ini is None:
-        similitud, percentil, es_plausible = 0.0, 0.0, False
+        similitud = percentil = 0.0
+        es_plausible = False
+        similitudes_ch = np.zeros(original.shape[1])
+        es_plausible_ch = np.zeros(original.shape[1], dtype=bool)
+        umbral_p5_ch = np.zeros(original.shape[1])
         t_ini_exp = t_fin_exp = 0
         freqs = esp_median = esp_p5 = esp_p95 = None
-        umbral_p5 = 0.0
+        esp_median_ch = esp_p5_ch = esp_p95_ch = None
     else:
         (similitud, percentil, es_plausible,
          t_ini_exp, t_fin_exp,
-         freqs, esp_median, esp_p5, esp_p95, umbral_p5) = plausibilidad_espectral(
+         freqs, esp_median, esp_p5, esp_p95,
+         similitudes_ch, es_plausible_ch, umbral_p5_ch,
+         esp_median_ch, esp_p5_ch, esp_p95_ch) = plausibilidad_espectral(
             cf=cf, t_ini=t_ini, t_fin=t_fin,
             X_train=X_train,
             n_timesteps_total=n_timesteps_total,
@@ -465,10 +536,13 @@ def reporte_cf(original, original_label, cf, cf_label, all_cfs, nun,
 
     print(f'\n4. PLAUSIBILITY ESPECTRAL')
     print(f'   Ventana analizada: t={t_ini_exp}-{t_fin_exp} ({t_fin_exp - t_ini_exp + 1} timesteps)')
-    print(f'   Similitud coseno vs referencia:  {similitud:.4f}')
-    print(f'   Percentil en distribución ref.:  {percentil:.1f}%')
-    print(f'   Umbral mínimo (P5 referencia):   {umbral_p5:.4f}')
-    print(f'   Cumple (similitud ≥ umbral):     {"✅ Sí" if es_plausible else "❌ No"}')
+    print(f'   Similitud media (6 boyas):   {similitud:.4f}')
+    print(f'   Percentil medio:             {percentil:.1f}%')
+    for ch in range(original.shape[1]):
+        veredicto = '✅' if es_plausible_ch[ch] else '❌'
+        print(f'   Boya {ch+1}: sim={similitudes_ch[ch]:.4f} '
+              f'(umbral={umbral_p5_ch[ch]:.4f}) {veredicto}')
+    print(f'   Cumple (todas las boyas ≥ umbral): {"✅ Sí" if es_plausible else "❌ No"}')
 
     print(f'\n{sep}')
     criterios = [cambio_exitoso, cumple_sparsity, cumple_proximity, es_plausible]
@@ -479,27 +553,32 @@ def reporte_cf(original, original_label, cf, cf_label, all_cfs, nun,
     print(sep)
 
     return {
-        'cambio_exitoso':    cambio_exitoso,
-        'n_cfs_total':       n_cfs_total,
-        'cumple_sparsity':   cumple_sparsity,
-        'n_timesteps_mod':   n_timesteps_mod,
-        'n_timesteps_nun':   n_timesteps_nun,
-        'pct_mod':           pct_mod,
-        't_ini':             t_ini,  't_fin':     t_fin,
-        't_ini_exp':         t_ini_exp, 't_fin_exp': t_fin_exp,
-        'dist_cf':           dist_cf,   'dist_nun':  dist_nun,
-        'prox_cf_relativa':  prox_cf_relativa,
-        'prox_nun_relativa': prox_nun_relativa,
-        'proximity_ratio':   proximity_ratio,
-        'cumple_proximity':  cumple_proximity,
+        'cambio_exitoso':      cambio_exitoso,
+        'n_cfs_total':         n_cfs_total,
+        'cumple_sparsity':     cumple_sparsity,
+        'n_timesteps_mod':     n_timesteps_mod,
+        'n_timesteps_nun':     n_timesteps_nun,
+        'pct_mod':             pct_mod,
+        't_ini':               t_ini,     't_fin':     t_fin,
+        't_ini_exp':           t_ini_exp, 't_fin_exp': t_fin_exp,
+        'dist_cf':             dist_cf,   'dist_nun':  dist_nun,
+        'prox_cf_relativa':    prox_cf_relativa,
+        'prox_nun_relativa':   prox_nun_relativa,
+        'proximity_ratio':     proximity_ratio,
+        'cumple_proximity':    cumple_proximity,
         'similitud_espectral': similitud,
         'percentil_espectral': percentil,
-        'umbral_p5':         umbral_p5,
-        'es_plausible':      es_plausible,
-        'freqs':             freqs,
-        'esp_median':        esp_median,
-        'esp_p5':            esp_p5,
-        'esp_p95':           esp_p95,
+        'similitudes_ch':      similitudes_ch,
+        'es_plausible_ch':     es_plausible_ch,
+        'umbral_p5_ch':        umbral_p5_ch,
+        'es_plausible':        es_plausible,
+        'freqs':               freqs,
+        'esp_median':          esp_median,
+        'esp_p5':              esp_p5,
+        'esp_p95':             esp_p95,
+        'esp_median_ch':       esp_median_ch,
+        'esp_p5_ch':           esp_p5_ch,
+        'esp_p95_ch':          esp_p95_ch,
     }
 
 

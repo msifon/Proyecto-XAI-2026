@@ -9,7 +9,7 @@ Nota sobre los modelos:
     - model_path_wrapped:  modelo con capa de salida wrapped (BinaryOutputLayer),
                            requerido por el explainer CONFETTI
 
-Autor: Proyecto XAI para series de tiempo de tsunami
+
 """
 
 import numpy as np
@@ -81,8 +81,8 @@ def _compute_cf_stats(all_cfs, instance):
 
 def analyze_with_confetti(model_path_wrapped, model_path_original, instance, X_train,
                           n_partitions=5, alpha=0.5, theta=0.5,
-                          optimize_sparsity=True, population_size=300,
-                          maximum_number_of_generations=300,
+                          optimize_sparsity=True, optimize_proximity=True, population_size=100,
+                          maximum_number_of_generations=200,
                           feature_names=None, save_path=None, training_weights_path=None, 
                           verbose=False, use_cam_weights=False):
     """
@@ -97,6 +97,7 @@ def analyze_with_confetti(model_path_wrapped, model_path_original, instance, X_t
         alpha (float):             Balance confianza-sparsity. Default: 0.5.
         theta (float):             Umbral de cambio de clase. Default: 0.5.
         optimize_sparsity (bool):  Optimizar sparsity. Default: True.
+        optimize_proximity (bool): Optimizar proximidad. Default: True.
         population_size (int):     Tamaño de población del algoritmo genético. Default: 300.
         maximum_number_of_generations (int): Máximo de generaciones. Default: 300.
         feature_names (list):      Nombres de las features/boyas. Default: None.
@@ -162,6 +163,7 @@ def analyze_with_confetti(model_path_wrapped, model_path_original, instance, X_t
             alpha=alpha,
             theta=theta,
             optimize_sparsity=optimize_sparsity,
+            optimize_proximity=optimize_proximity,
             population_size=population_size,
             maximum_number_of_generations=maximum_number_of_generations,
             verbose=verbose
